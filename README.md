@@ -25,3 +25,7 @@ Fișierul gata de instalat, `TizenTubeLauncher.wgt`, e în secțiunea **Releases
 
 Fișierul `.wgt` e un zip simplu cu aceste fișiere, nesemnat; Apps2Samsung îl semnează la instalare.
 Ca să-l refaci din sursă: `zip -r TizenTubeLauncher.wgt config.xml index.html icon.png icon_16b9.png service`
+
+## Licență
+
+GPL-3.0, la fel ca TizenTube, din care provine `service/dist/index.js`. Vezi `LICENSE`.
