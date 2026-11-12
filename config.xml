@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns:tizen="http://tizen.org/ns/widgets" xmlns="http://www.w3.org/ns/widgets" id="https://tizentube.app/start" version="1.0.3" viewmodes="maximized">
+    <access origin="*" subdomains="true"></access>
+    <tizen:application id="TTStartApp.Start" package="TTStartApp" required_version="3.0"/>
+    <content src="index.html"/>
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+    <feature name="http://tizen.org/feature/web.service"/>
+    <icon src="icon_16b9.png" width="1920" height="1080"/>
+    <icon src="icon.png" width="1024" height="1024"/>
+    <name>TizenTube FARA RECLAME</name>
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.info"/>
+    <tizen:privilege name="http://tizen.org/privilege/appmanager.kill"/>
+    <tizen:profile name="tv-samsung"/>
+    <tizen:service id="TTStartApp.Service" auto-restart="true" on-boot="true">
+        <tizen:content src="service/dist/index.js"/>
+        <tizen:name>TizenTubeStartService</tizen:name>
+        <tizen:description>Porneste serviciul TizenTube</tizen:description>
+    </tizen:service>
+    <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="enable" encryption="disable" install-location="auto"/>
+</widget>

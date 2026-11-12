@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script>
+"use strict";
+// Porneste serviciul TizenTube (daca nu merge deja), apoi deschide TizenTube.
+var TIZENTUBE = "xvvl3S1TT1.TizenTubeStandalone";
+var SERVICE = tizen.application.getCurrentApplication().appInfo.packageId + ".Service";
+
+function status(text) {
+    var el = document.getElementById("s");
+    if (el) el.textContent = text;
+}
+
+// Serviciul raspunde pe 8100 doar dupa ce a pornit si proxy-ul de pe 8101.
+function serviceUp(cb) {
+    var x = new XMLHttpRequest();
+    var done = false;
+    function end(v) { if (!done) { done = true; cb(v); } }
+    x.open("GET", "http://127.0.0.1:8100/tizentube/getState");
+    x.timeout = 3000;
+    x.onload = function () { end(true); };
+    x.ontimeout = function () { end(true); };   // portul a acceptat conexiunea
+    x.onerror = function () { end(false); };    // conexiune refuzata
+    x.send();
+}
+
+function launchTizenTube() {
+    tizen.application.launch(TIZENTUBE, function () {
+        tizen.application.getCurrentApplication().exit();
+    }, function (e) {
+        status("Nu pot deschide TizenTube: " + e.message);
+    });
+}
+
+// Daca TizenTube (sau playerul YouTube intern) ruleaza deja in fundal,
+// a fost pornit fara serviciu si ar arata reclame. Il inchidem intai.
+var STALE = [TIZENTUBE, "com.samsung.tv.cobalt-yt"];
+
+function openTizenTube() {
+    status("Deschid TizenTube...");
+    try {
+        tizen.application.getAppsContext(function (contexts) {
+            var killed = 0;
+            for (var i = 0; i < contexts.length; i++) {
+                if (STALE.indexOf(contexts[i].appId) !== -1) {
+                    try { tizen.application.kill(contexts[i].id); killed++; } catch (e) {}
+                }
+            }
+            setTimeout(launchTizenTube, killed ? 2000 : 0);
+        }, launchTizenTube);
+    } catch (e) {
+        launchTizenTube();
+    }
+}
+
+function waitThenOpen(triesLeft) {
+    serviceUp(function (up) {
+        if (up) {
+            setTimeout(openTizenTube, 1000);
+        } else if (triesLeft > 0) {
+            setTimeout(function () { waitThenOpen(triesLeft - 1); }, 1000);
+        } else {
+            status("Serviciul nu a pornit. Inchide si redeschide aplicatia.");
+        }
+    });
+}
+
+window.onload = function () {
+    serviceUp(function (up) {
+        if (up) return openTizenTube();
+        status("Pornesc serviciul de blocare reclame...");
+        tizen.application.launchAppControl(
+            new tizen.ApplicationControl("http://tizen.org/appcontrol/operation/service"),
+            SERVICE,
+            function () { waitThenOpen(60); },
+            function (e) { status("Nu pot porni serviciul: " + e.message); }
+        );
+    });
+};
+</script>
+</head>
+<body style="background:#0f0f0f;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;margin:0;font-family:Roboto,Arial,sans-serif;">
+    <h1 style="color:#fff;font-size:80px;margin:0;">TizenTube</h1>
+    <p id="s" style="color:#aaa;font-size:36px;margin-top:40px;">Se porneste...</p>
+</body>
+</html>
